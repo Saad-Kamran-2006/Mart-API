@@ -11,6 +11,8 @@ services:
       - ./user-service:/code
     ports:
       - "8000:8000"
+    networks:
+      - mart-net
     depends_on:
       - user_postgres_db
       - broker1
@@ -30,6 +32,8 @@ services:
       - "5433:5432"
     volumes:
       - user_postgres_db:/var/lib/postgresql/data
+    networks:
+      - mart-net
 
   #? Initialize kafka brokers in kafka cluster:
    # Initialize kafka broker 1
@@ -54,6 +58,10 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       KAFKA_LOG_DIRS: "/tmp/kraft-combined-logs"
+    networks:
+      - mart-net
+    depends_on:
+      - user_postgres_db
 
   #? Initialize kafka broker 2:
   broker2:
@@ -77,6 +85,10 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       KAFKA_LOG_DIRS: "/tmp/kraft-combined-logs"
+    networks:
+      - mart-net
+    depends_on:
+      - user_postgres_db
 
   #? Initialize kafka broker 2:
   broker3:
@@ -100,6 +112,10 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       KAFKA_LOG_DIRS: "/tmp/kraft-combined-logs"
+    networks:
+      - mart-net
+    depends_on:
+      - user_postgres_db
 
   #? Initialize kafka-ui for kafka cluster and brokers:
   kafka-ui:
@@ -111,6 +127,8 @@ services:
       KAFKA_CLUSTERS_0_NAME: 'Mart-API Kafka Cluster'
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: 'broker1:19092,broker2:19092,broker3:19092'
       DYNAMIC_CONFIG_ENABLED: "true"
+    networks:
+      - mart-net
     depends_on:
       - broker1
       - broker2
@@ -126,6 +144,8 @@ services:
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
     ports:
       - "8081:8081"
+    networks:
+      - mart-net
     depends_on:
       - broker1
       - broker2
@@ -135,12 +155,14 @@ services:
   # init-kafka:
   #   build:
   #     context: ./init/kafka/
-  #   depends_on:
-  #     - broker
+  #   container_name: init-kafka
   #   environment:
-  #     KAFKA_HOST: broker
-  #     KAFKA_PORT: 9092
-  #     KAFKA_CREATE_TOPICS: "table-update:1:1,error:1:1,ms-order-inbox-topic:1:1,ms-order-inbox-error-topic:1:1,ms-order-outbox-topic:1:1"
+  #     KAFKA_HOST: "broker1:19092,broker2:19092,broker3:19092"
+  #     KAFKA_CREATE_TOPICS: "register-user:3:3,update-user:3:3,delete-user:3:3,get-user:3:3,get-all-users:3:3"
+  #   depends_on:
+  #     - broker1
+  #     - broker2
+  #     - broker3
 
 #? Initialize volumes for microservices:
 volumes:

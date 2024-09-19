@@ -19,6 +19,8 @@ BOOTSTRAP_SERVER1 = config("BOOTSTRAP_SERVER1", cast=str)
 BOOTSTRAP_SERVER2 = config("BOOTSTRAP_SERVER2", cast=str)
 BOOTSTRAP_SERVER3 = config("BOOTSTRAP_SERVER3", cast=str)
 
+BOOTSTRAP_SERVERS = config("BOOTSTRAP_SERVERS", cast=str)
+
 SALT = config("SALT", cast=str)
 EMAIL_HOST = config("EMAIL_HOST", cast=str)
 EMAIL_PORT = config("EMAIL_PORT", cast=int)
@@ -29,3 +31,7 @@ EMAIL_FROM = config("EMAIL_FROM", cast=str)
 DOMAIN_NAME = config("DOMAIN_NAME", cast=str)
 SERVICE = config("SERVICE", cast=str)
 PREFIX = config("PREFIX", cast=str)
+
+
+KAFKA_USER_REGISTER_TOPIC = config("KAFKA_USER_REGISTER_TOPIC", cast=str)
+KAFKA_CONSUMER_GROUP_ID_FOR_USER_SERVICE = config("KAFKA_CONSUMER_GROUP_ID_FOR_USER_SERVICE", cast=str)

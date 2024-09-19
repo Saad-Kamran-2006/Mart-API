@@ -1,9 +1,5 @@
-from app.config.setting import (
-    BOOTSTRAP_SERVER1,
-    BOOTSTRAP_SERVER2,
-    BOOTSTRAP_SERVER3,
-)
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
+from app.config.setting import BOOTSTRAP_SERVERS
 from app.protobuf import user_pb2
 
 bootstrap_servers = ["broker1:19092", "broker2:19092", "broker3:19092"]

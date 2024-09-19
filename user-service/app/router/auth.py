@@ -16,6 +16,7 @@ from app.config.setting import (
     BOOTSTRAP_SERVER1,
     BOOTSTRAP_SERVER2,
     BOOTSTRAP_SERVER3,
+    KAFKA_USER_REGISTER_TOPIC
 )
 
 from typing import Annotated
@@ -25,6 +26,7 @@ from confluent_kafka.schema_registry.protobuf import ProtobufSerializer
 from confluent_kafka.schema_registry import SchemaRegistryClient
 from app.kafka.producer_consumer import kafka_consumer, kafka_producer
 from confluent_kafka.serialization import SerializationContext, MessageField
+from app.utils.get_schema import get_schema
 from app.protobuf import user_pb2
 import asyncio
 
@@ -35,13 +37,7 @@ auth_router = APIRouter(
     prefix="/auth", tags=["auth"], responses={404: {"description": "Not Found"}}
 )
 
-schema_registry_conf = {"url": "http://127.0.0.1:8081/"}
-schema_registry_client = SchemaRegistryClient(schema_registry_conf)
 
-protobuf_serializer = ProtobufSerializer(
-    user_pb2.Users, schema_registry_client
-    # , {"use.deprecated.format": False}
-)
 
 
 @auth_router.post("/register")
@@ -56,24 +52,18 @@ async def register_user(
             status_code=409, detail="User with these credientials already exist"
         )
     if not db_user:
-        user = user_pb2.Users(
+        user: Register_User = user_pb2.Users(
             username=new_user.username,
             email=new_user.email,
             password=hash_password(new_user.password),
         )
-        print("User: ", user)
+        print("Original data: ", user)
 
-        # ? Create the serialization context for the value
-        context = SerializationContext(topic="user-register", field=MessageField.VALUE)
-        print("Context: ", context)
-
-        # ? Serialize the Protobuf message
-        value = protobuf_serializer(user, context)
-        print("Value: ", value)
-        print("Value: ", value)
-
+        user_data = user.SerializeToString()
+        print("Serialized Data: ", user_data)
+        
         # ? Produce the message with headers
-        await producer.send_and_wait("user-register", value=value)
+        await producer.send_and_wait(KAFKA_USER_REGISTER_TOPIC, user_data)
         # session.add(user)
         # session.commit()
         # session.refresh(user)
