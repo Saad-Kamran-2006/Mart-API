@@ -3,10 +3,11 @@ from app.config.setting import BOOTSTRAP_SERVERS
 from app.protobuf import user_pb2
 
 bootstrap_servers = ["broker1:19092", "broker2:19092", "broker3:19092"]
+bootstrap_server = "broker:19092"
 
 # ? Kafka Producer as a dependency:
 async def kafka_producer():
-    producer = AIOKafkaProducer(bootstrap_servers=bootstrap_servers)
+    producer = AIOKafkaProducer(bootstrap_servers=bootstrap_server)
     await producer.start()
     try:
         yield producer

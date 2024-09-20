@@ -6,7 +6,7 @@ from app.router.auth import auth_router
 from app.router.user import user_router
 from app.kafka.producer_consumer import kafka_consumer
 from typing import Annotated
-from app.config.setting import KAFKA_USER_REGISTER_TOPIC, KAFKA_CONSUMER_GROUP_ID_FOR_USER_SERVICE, BOOTSTRAP_SERVERS
+from app.config.setting import KAFKA_USER_REGISTER_TOPIC, KAFKA_CONSUMER_GROUP_ID_FOR_USER_SERVICE, BOOTSTRAP_SERVERS, BOOTSTRAP_SERVER
 import asyncio
 
 # from app.models.user_model import User, Register_User
@@ -16,12 +16,12 @@ import asyncio
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI, session: Annotated[Session, Depends(get_session)]):
+async def lifespan(app: FastAPI):
     create_tables()
-    new_user = asyncio.create_task(kafka_consumer(KAFKA_USER_REGISTER_TOPIC, BOOTSTRAP_SERVERS, KAFKA_CONSUMER_GROUP_ID_FOR_USER_SERVICE))
-    session.add(new_user)
-    session.commit()
-    session.refresh(new_user)
+    new_user = asyncio.create_task(kafka_consumer(KAFKA_USER_REGISTER_TOPIC, BOOTSTRAP_SERVER, KAFKA_CONSUMER_GROUP_ID_FOR_USER_SERVICE))
+    # session.add(new_user)
+    # session.commit()
+    # session.refresh(new_user)
     yield
 
 

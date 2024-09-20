@@ -13,6 +13,7 @@ from app.config.setting import (
     EXPIRY_TIME,
     ALGORITHYM,
     SECRET_KEY,
+    BOOTSTRAP_SERVER,
     BOOTSTRAP_SERVER1,
     BOOTSTRAP_SERVER2,
     BOOTSTRAP_SERVER3,
@@ -32,6 +33,7 @@ import asyncio
 
 
 bootstrap_servers = [BOOTSTRAP_SERVER1, BOOTSTRAP_SERVER2, BOOTSTRAP_SERVER3]
+bootstrap_server = BOOTSTRAP_SERVER
 
 auth_router = APIRouter(
     prefix="/auth", tags=["auth"], responses={404: {"description": "Not Found"}}

@@ -15,6 +15,8 @@ SECRET_KEY = config("SECRET_KEY", cast=str)
 ALGORITHYM = config("ALGORITHYM", cast=str)
 EXPIRY_TIME = config("EXPIRY_TIME", cast=int)
 
+BOOTSTRAP_SERVER = config("BOOTSTRAP_SERVER", cast=str)
+
 BOOTSTRAP_SERVER1 = config("BOOTSTRAP_SERVER1", cast=str)
 BOOTSTRAP_SERVER2 = config("BOOTSTRAP_SERVER2", cast=str)
 BOOTSTRAP_SERVER3 = config("BOOTSTRAP_SERVER3", cast=str)
