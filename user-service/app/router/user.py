@@ -27,6 +27,8 @@ from app.models.user_model import (
 )
 from typing import Annotated
 from datetime import timedelta
+from aiokafka import AIOKafkaProducer
+from app.kafka.producer_consumer import kafka_consumer, kafka_producer
 
 
 user_router = APIRouter(
@@ -38,6 +40,7 @@ user_router = APIRouter(
 async def profile(
     current_user: Annotated[User, Depends(current_user)],
     session: Annotated[Session, Depends(get_session)],
+    # producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)],
 ):
     db_user = get_user_from_db(session, current_user.username, current_user.email)
     user: User_Profile = User_Profile(username=db_user.username, email=db_user.email)
@@ -151,7 +154,6 @@ async def delete_user(
     session: Annotated[Session, Depends(get_session)],
 ):
     db_user = get_user_from_db(session, current_user.username, current_user.email)
-    # user: User_Profile = User_Profile(username=db_user.username, email=db_user.email)
     if db_user:
         session.delete(db_user)
         session.commit()

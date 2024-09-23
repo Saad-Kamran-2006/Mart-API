@@ -15,6 +15,8 @@ SECRET_KEY = config("SECRET_KEY", cast=str)
 ALGORITHYM = config("ALGORITHYM", cast=str)
 EXPIRY_TIME = config("EXPIRY_TIME", cast=int)
 
+
+# ? Bootstrap Server Kafka:
 BOOTSTRAP_SERVER = config("BOOTSTRAP_SERVER", cast=str)
 
 BOOTSTRAP_SERVER1 = config("BOOTSTRAP_SERVER1", cast=str)
@@ -23,6 +25,8 @@ BOOTSTRAP_SERVER3 = config("BOOTSTRAP_SERVER3", cast=str)
 
 BOOTSTRAP_SERVERS = config("BOOTSTRAP_SERVERS", cast=str)
 
+
+# ? Email Sender
 SALT = config("SALT", cast=str)
 EMAIL_HOST = config("EMAIL_HOST", cast=str)
 EMAIL_PORT = config("EMAIL_PORT", cast=int)
@@ -35,5 +39,21 @@ SERVICE = config("SERVICE", cast=str)
 PREFIX = config("PREFIX", cast=str)
 
 
+# ? Kafka Topics:
 KAFKA_USER_REGISTER_TOPIC = config("KAFKA_USER_REGISTER_TOPIC", cast=str)
+KAFKA_USER_LOGIN_TOPIC = config("KAFKA_USER_LOGIN_TOPIC", cast=str)
+KAFKA_EDIT_USER_TOPIC = config("KAFKA_EDIT_USER_TOPIC", cast=str)
+KAFKA_DELETE_USER_TOPIC = config("KAFKA_DELETE_USER_TOPIC", cast=str)
+
+
+# ? Kafka Consumer Group:
 KAFKA_CONSUMER_GROUP_FOR_REGISTER_USER = config("KAFKA_CONSUMER_GROUP_FOR_REGISTER_USER", cast=str)
+KAFKA_CONSUMER_GROUP_FOR_LOGIN_USER = config("KAFKA_CONSUMER_GROUP_FOR_LOGIN_USER", cast=str)
+KAFKA_CONSUMER_GROUP_FOR_EDIT_USER = config("KAFKA_CONSUMER_GROUP_FOR_EDIT_USER", cast=str)
+KAFKA_CONSUMER_GROUP_FOR_DELETE_USER = config("KAFKA_CONSUMER_GROUP_FOR_DELETE_USER", cast=str)
+
+
+
+
+
+

@@ -25,7 +25,7 @@ from datetime import timedelta
 from aiokafka import AIOKafkaProducer
 from confluent_kafka.schema_registry.protobuf import ProtobufSerializer
 from confluent_kafka.schema_registry import SchemaRegistryClient
-from app.kafka.producer_consumer import kafka_consumer, kafka_producer
+from app.kafka.producer_consumer import kafka_producer
 from confluent_kafka.serialization import SerializationContext, MessageField
 from app.utils.get_schema import get_schema
 from app.protobuf import user_pb2
@@ -38,8 +38,6 @@ bootstrap_server = BOOTSTRAP_SERVER
 auth_router = APIRouter(
     prefix="/auth", tags=["auth"], responses={404: {"description": "Not Found"}}
 )
-
-
 
 
 @auth_router.post("/register")
@@ -59,16 +57,13 @@ async def register_user(
             email=new_user.email,
             password=hash_password(new_user.password),
         )
-        print("Original data: ", user)
+        print("\nUser's Data: ", user)
 
         user_data = user.SerializeToString()
-        print("Serialized Data: ", user_data)
+        print("User's Serialized Data: ", user_data)
         
         # ? Produce the message with headers
         await producer.send_and_wait(KAFKA_USER_REGISTER_TOPIC, user_data)
-        # session.add(user)
-        # session.commit()
-        # session.refresh(user)
         return {"message": f"User with {user.username} successfully registered"}
 
 
