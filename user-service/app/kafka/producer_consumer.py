@@ -2,8 +2,8 @@ from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from app.config.setting import BOOTSTRAP_SERVERS
 from app.protobuf import user_pb2
 
-bootstrap_servers = ["broker1:19092", "broker2:19092", "broker3:19092"]
-bootstrap_server = "broker:19092"
+# bootstrap_servers = ["broker1:19092", "broker2:19092", "broker3:19092"]
+# bootstrap_server = "broker:19092"
 
 # ? Kafka Producer as a dependency:
 async def kafka_producer():
@@ -16,11 +16,11 @@ async def kafka_producer():
 
 
 # ? Kafka consumer:
-async def kafka_consumer(topic, bootstrap_servers, group_id):
+async def kafka_consumer(topic, bootstrap_server, group_id):
     # Create a consumer instance.
     consumer = AIOKafkaConsumer(
         topic,
-        bootstrap_servers=bootstrap_servers,
+        bootstrap_servers=bootstrap_server,
         group_id=group_id,
         auto_offset_reset="earliest",
     )

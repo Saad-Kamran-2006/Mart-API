@@ -8,7 +8,7 @@ from app.kafka.producer_consumer import kafka_consumer
 from typing import Annotated
 from app.config.setting import (
     KAFKA_USER_REGISTER_TOPIC,
-    KAFKA_CONSUMER_GROUP_ID_FOR_USER_SERVICE,
+    KAFKA_CONSUMER_GROUP_FOR_REGISTER_USER,
     BOOTSTRAP_SERVERS,
     BOOTSTRAP_SERVER,
 )
@@ -27,7 +27,7 @@ async def lifespan(app: FastAPI):
         kafka_consumer(
             KAFKA_USER_REGISTER_TOPIC,
             BOOTSTRAP_SERVER,
-            KAFKA_CONSUMER_GROUP_ID_FOR_USER_SERVICE,
+            KAFKA_CONSUMER_GROUP_FOR_REGISTER_USER,
         )
     )
     # session.add(new_user)
