@@ -10,6 +10,7 @@ from fastapi.security import OAuth2PasswordBearer
 
 oauth_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
+
 def current_user(
     token: Annotated[str, Depends(oauth_scheme)],
     session: Annotated[Session, Depends(get_session)],

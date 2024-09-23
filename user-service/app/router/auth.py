@@ -29,6 +29,8 @@ from app.kafka.producer_consumer import kafka_producer
 from confluent_kafka.serialization import SerializationContext, MessageField
 from app.utils.get_schema import get_schema
 from app.protobuf import user_pb2
+from app.utils.verify_token import current_user
+from app.utils.super_user import is_super_user
 import asyncio
 
 
@@ -105,3 +107,18 @@ def refresh_token(
     return Token(
         access_token=access_token, token_type="bearer", refresh_token=refresh_token
     )
+
+
+@auth_router.post("/admin")
+async def is_admin(
+    current_user: Annotated[User, Depends(current_user)],
+    session: Annotated[Session, Depends(get_session)],
+):
+    db_user = get_user_from_db(session, current_user.username, current_user.email)
+    if not db_user:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    if db_user:
+        super_user = is_super_user(db_user)
+        if super_user:
+            return True
+        return {"message": "Unauthorize"}
