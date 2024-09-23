@@ -121,4 +121,4 @@ async def is_admin(
         super_user = is_super_user(db_user)
         if super_user:
             return True
-        return {"message": "Unauthorize"}
+        return {"message": "Unauthorized"}
