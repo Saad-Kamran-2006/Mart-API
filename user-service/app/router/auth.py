@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
 from app.models.user_model import User, Register_User
-from app.models.token_model import Token
+from app.models.token_model import Token, UserToken
 from app.utils.get_user import get_user_from_db
 from app.utils.security import hash_password
 from app.utils.verify_user import authenticate_user
@@ -81,17 +81,12 @@ async def login_user(
     access_token = create_access_token({"sub": user_data.username}, expire_time)
     refresh_expire_time = timedelta(days=7)
     refresh_token = create_access_token({"sub": user.email}, refresh_expire_time)
-    # print("user data from login: ", user)
-    is_admin = is_super_user(user)
-    # print("is-admin: ", is_admin)
-    return {
-        "token": Token(
+    return Token(
             access_token=access_token,
             token_type="bearer",
-            refresh_token=refresh_token,
-        ),
-        "is_admin": is_admin,
-    }
+            refresh_token=refresh_token
+        )
+    
 
 
 @auth_router.post("/token", response_model=Token)
@@ -117,16 +112,35 @@ def refresh_token(
     )
 
 
+# @auth_router.post("/admin")
+# async def is_admin(
+#     current_user: Annotated[User, Depends(current_user)],
+#     session: Annotated[Session, Depends(get_session)],
+# ):
+#     db_user = get_user_from_db(session, current_user.username, current_user.email)
+#     if not db_user:
+#         raise HTTPException(status_code=401, detail="Invalid username or password")
+#     if db_user:
+#         super_user = is_super_user(db_user)
+#         if super_user:
+#             return True
+#         return {"message": "Unauthorized"}
 @auth_router.post("/admin")
 async def is_admin(
-    current_user: Annotated[User, Depends(current_user)],
+    user_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: Annotated[Session, Depends(get_session)],
 ):
-    db_user = get_user_from_db(session, current_user.username, current_user.email)
-    if not db_user:
+    user: User = authenticate_user(user_data.username, user_data.password, session)
+    if not user:
         raise HTTPException(status_code=401, detail="Invalid username or password")
-    if db_user:
-        super_user = is_super_user(db_user)
-        if super_user:
-            return True
-        return {"message": "Unauthorized"}
+    expire_time = timedelta(minutes=EXPIRY_TIME)
+    access_token = create_access_token({"sub": user_data.username}, expire_time)
+    refresh_expire_time = timedelta(days=7)
+    refresh_token = create_access_token({"sub": user.email}, refresh_expire_time)
+    is_admin = is_super_user(user)
+    return UserToken(
+            access_token=access_token,
+            token_type="bearer",
+            refresh_token=refresh_token,
+            is_admin=is_admin,
+        )
