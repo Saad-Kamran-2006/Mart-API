@@ -9,7 +9,7 @@ connection_string: str = str(setting.DATABASE_URL).replace(
 # ? Engine is one for whole application:
 engine = create_engine(
     connection_string,
-    connect_args={"sslmode": "require"},
+    # connect_args={"sslmode": "require"},
     pool_recycle=300,
     pool_size=10,
     # echo=True,
