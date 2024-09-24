@@ -17,7 +17,7 @@ from app.config.setting import (
     BOOTSTRAP_SERVER1,
     BOOTSTRAP_SERVER2,
     BOOTSTRAP_SERVER3,
-    KAFKA_USER_REGISTER_TOPIC
+    KAFKA_USER_REGISTER_TOPIC,
 )
 
 from typing import Annotated
@@ -63,27 +63,35 @@ async def register_user(
 
         user_data = user.SerializeToString()
         print("User's Serialized Data: ", user_data)
-        
+
         # ? Produce the message with headers
         await producer.send_and_wait(KAFKA_USER_REGISTER_TOPIC, user_data)
         return {"message": f"User with {user.username} successfully registered"}
 
 
-@auth_router.post("/login", response_model=Token)
+@auth_router.post("/login")
 async def login_user(
     user_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: Annotated[Session, Depends(get_session)],
 ):
-    user = authenticate_user(user_data.username, user_data.password, session)
+    user: User = authenticate_user(user_data.username, user_data.password, session)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid username or password")
     expire_time = timedelta(minutes=EXPIRY_TIME)
     access_token = create_access_token({"sub": user_data.username}, expire_time)
     refresh_expire_time = timedelta(days=7)
     refresh_token = create_access_token({"sub": user.email}, refresh_expire_time)
-    return Token(
-        access_token=access_token, token_type="bearer", refresh_token=refresh_token
-    )
+    # print("user data from login: ", user)
+    is_admin = is_super_user(user)
+    # print("is-admin: ", is_admin)
+    return {
+        "token": Token(
+            access_token=access_token,
+            token_type="bearer",
+            refresh_token=refresh_token,
+        ),
+        "is_admin": is_admin,
+    }
 
 
 @auth_router.post("/token", response_model=Token)
