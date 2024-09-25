@@ -3,6 +3,7 @@ from sqlmodel import Session
 from contextlib import asynccontextmanager
 from app.config.db import create_tables, get_session
 from app.router.product import product_router
+from app.router.auth import auth_router
 
 # from app.kafka.producer_consumer import kafka_consumer
 
@@ -33,6 +34,7 @@ app: FastAPI = FastAPI(
 )
 
 app.include_router(router=product_router)
+app.include_router(router=auth_router)
 
 @app.get("/")
 async def product_service():
