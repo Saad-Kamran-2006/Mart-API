@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from fastapi import Form
 
 
-class User(SQLModel, table=True):
+class User(SQLModel):
     id: Optional[int] = Field(primary_key=True, default=None, index=True)
     username: str = Field(unique=True, index=True, min_length=3, max_length=20)
     email: str = Field(unique=True, index=True)

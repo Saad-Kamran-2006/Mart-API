@@ -4,6 +4,9 @@ from contextlib import asynccontextmanager
 from app.config.db import create_tables, get_session
 from app.router.product import product_router
 from app.router.auth import auth_router
+from app.config.setting import BOOTSTRAP_SERVER, KAFKA_CREATE_PRODUCT_TOPIC, KAFKA_CONSUMER_GROUP_FOR_CREATE_PRODUCT
+from app.kafka.producer_consumer import kafka_consumer
+import asyncio
 
 # from app.kafka.producer_consumer import kafka_consumer
 
@@ -16,6 +19,13 @@ from app.router.auth import auth_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     create_tables()
+    new_product = asyncio.create_task(
+        kafka_consumer(
+            KAFKA_CREATE_PRODUCT_TOPIC,
+            BOOTSTRAP_SERVER,
+            KAFKA_CONSUMER_GROUP_FOR_CREATE_PRODUCT,
+        )
+    )
     yield
 
 

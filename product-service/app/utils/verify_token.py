@@ -14,7 +14,7 @@ import httpx
 oauth_scheme = OAuth2PasswordBearer(tokenUrl="/product-service/auth/token")
 
 
-async def current_user(
+def current_user(
     token: Annotated[str, Depends(oauth_scheme)],
     session: Annotated[Session, Depends(get_session)],
 ):
@@ -35,9 +35,9 @@ async def current_user(
         raise credential_exception
     try:
         url = f"http://host.docker.internal:8000/user-service/auth/user?username={token_data.username}"
-        async with httpx.AsyncClient() as client:
-            response = await client.post(url)
-            user = response.json()
+        # async with httpx.AsyncClient() as client:
+        response = requests.post(url)
+        user = response.json()
     except Exception as e:
         raise HTTPException(status_code=401, detail={f"{e}"})
     if not user:
