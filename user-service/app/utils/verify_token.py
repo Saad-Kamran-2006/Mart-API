@@ -8,13 +8,14 @@ from app.models.token_model import TokenData
 from app.utils.get_user import get_user_from_db
 from fastapi.security import OAuth2PasswordBearer
 
-oauth_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth_scheme = OAuth2PasswordBearer(tokenUrl="/user-service/auth/login")
 
 
 def current_user(
     token: Annotated[str, Depends(oauth_scheme)],
     session: Annotated[Session, Depends(get_session)],
 ):
+    
     credential_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid token, please login again",

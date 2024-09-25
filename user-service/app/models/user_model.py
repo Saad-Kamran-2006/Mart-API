@@ -43,4 +43,7 @@ class Edit_User(BaseModel):
     email: Annotated[Optional[str], Form()]
     password: Annotated[Optional[str], Form()]
 
+class Db_User(BaseModel):
+    username: Annotated[str, Form()]
+
 

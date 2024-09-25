@@ -25,6 +25,7 @@ from app.models.user_model import (
     Edit_User,
     Register_User,
 )
+from app.models.roles import UserRole
 from typing import Annotated
 from datetime import timedelta
 from aiokafka import AIOKafkaProducer
@@ -36,12 +37,12 @@ user_router = APIRouter(
 )
 
 
-@user_router.get("/profile", response_model=User)
+@user_router.get("/profile", response_model=User_Profile)
 async def profile(
     current_user: Annotated[User, Depends(current_user)],
     session: Annotated[Session, Depends(get_session)],
     # producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)],
-):
+):  
     db_user = get_user_from_db(session, current_user.username, current_user.email)
     user: User_Profile = User_Profile(username=db_user.username, email=db_user.email)
     if not user:
