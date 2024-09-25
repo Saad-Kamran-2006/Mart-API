@@ -39,40 +39,40 @@ services:
 
 # ? <------------------------------------------- User Service ------------------------------------------->
 
-  # #? Service 2: (Product Service):
-  # product:
-  #   image: product-api
-  #   build:
-  #     context: ./product-service
-  #   container_name: product-service
-  #   volumes:
-  #     - ./product-service:/code
-  #   ports:
-  #     - "8001:8000"
-  #   networks:
-  #     - mart-net
-  #   depends_on:
-  #     - product_postgres_db
-  #     # - broker1
-  #     # - broker2
-  #     # - broker3
-  #     - broker
+  #? Service 2: (Product Service):
+  product:
+    image: product-api
+    build:
+      context: ./product-service
+    container_name: product-service
+    volumes:
+      - ./product-service:/code
+    ports:
+      - "8001:8000"
+    networks:
+      - mart-net
+    depends_on:
+      - product_postgres_db
+      # - broker1
+      # - broker2
+      # - broker3
+      - broker
 
-  # #? (Product Service Database):
-  # product_postgres_db:
-  #   image: postgres:latest
-  #   restart: always
-  #   container_name: product-postgres
-  #   environment:
-  #     - POSTGRES_USER=product_postgres
-  #     - POSTGRES_PASSWORD=product_postgres_password
-  #     - POSTGRES_DB=product_postgres_db
-  #   ports:
-  #     - "5434:5432"
-  #   volumes:
-  #     - product_postgres_db:/var/lib/postgresql/data
-  #   networks:
-  #     - mart-net
+  #? (Product Service Database):
+  product_postgres_db:
+    image: postgres:latest
+    restart: always
+    container_name: product-postgres
+    environment:
+      - POSTGRES_USER=product_postgres
+      - POSTGRES_PASSWORD=product_postgres_password
+      - POSTGRES_DB=product_postgres_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - product_postgres_db:/var/lib/postgresql/data
+    networks:
+      - mart-net
     
 # ? <------------------------------------------- Product Service ------------------------------------------->
 

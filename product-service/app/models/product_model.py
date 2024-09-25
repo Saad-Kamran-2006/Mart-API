@@ -23,5 +23,9 @@ class Create_Product(BaseModel):
     # description: Annotated[str, Form()]
     quantity: Annotated[int, Form()]
     price: Annotated[int, Form()]
+class User_Data(BaseModel):
+    username: Annotated[str, Form()]
+    password: Annotated[str, Form()]
+
 
 
