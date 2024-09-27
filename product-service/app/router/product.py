@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Form, HTTPException
 from sqlmodel import Session, select
 from app.config.db import get_session
 from typing import Annotated, Optional, Any
-from app.models.product_model import Create_Product, Product, Get_Product
+from app.models.product_model import Create_Product, Product, Get_Product, Edit_Product
 from app.models.user_model import User
 from app.models.roles import UserRole
 from app.utils.verify_token import current_user
@@ -90,7 +90,7 @@ async def get_single_product(product_id: str, session: Annotated[Session, Depend
 @product_router.put("/{product_id}", response_model=Get_Product)
 async def edit_product(
     product_id: str,
-    new_product: Annotated[Create_Product, Depends()],
+    new_product: Annotated[Edit_Product, Depends()],
     current_user: Annotated[User, Depends(current_user)],
     session: Annotated[Session, Depends(get_session)],
 ):

@@ -16,7 +16,7 @@ class Inventory(SQLModel, table=True):
         super().__init__(**data)
 
         # Automatically set is_available based on quantity
-        self.is_available = int(self.quantity) >= 1
+        self.is_available = self.quantity >= 1
 
 
 class Edit_Inventory(BaseModel):

@@ -16,7 +16,11 @@ class Product(SQLModel, table=True):
 
 class Create_Product(BaseModel):
     title: Annotated[str, Form()]
-    # quantity: Annotated[int, Form()]
+    quantity: Annotated[int, Form()]
+    price: Annotated[float, Form()]
+
+class Edit_Product(BaseModel):
+    title: Annotated[str, Form()]
     price: Annotated[float, Form()]
 
 class Get_Product(BaseModel):
