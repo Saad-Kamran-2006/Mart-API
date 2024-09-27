@@ -30,9 +30,6 @@ async def lifespan(app: FastAPI):
             KAFKA_CONSUMER_GROUP_FOR_REGISTER_USER,
         )
     )
-    # session.add(new_user)
-    # session.commit()
-    # session.refresh(new_user)
     yield
 
 
