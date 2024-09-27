@@ -34,6 +34,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
+
 app: FastAPI = FastAPI(
     lifespan=lifespan,
     title="Inventory Microservice",

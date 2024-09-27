@@ -13,7 +13,7 @@ class Inventory(SQLModel, table=True):
 
     def __init__(self, **data):
         # Call the parent constructor with the updated data
-        super().__init__(**data)
+        super().__init__(**data) 
 
         # Automatically set is_available based on quantity
         self.is_available = self.quantity >= 1

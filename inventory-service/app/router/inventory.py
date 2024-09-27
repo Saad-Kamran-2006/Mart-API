@@ -36,7 +36,7 @@ async def edit_product(
 
     if existing_inventory:
         existing_inventory.quantity = inventory_data.quantity
-        existing_inventory.is_available = inventory_data.quantity >= 1 if True else False        
+        existing_inventory.is_available = inventory_data.quantity >= 1 if True else False       
         
         session.add(existing_inventory)
         session.commit()

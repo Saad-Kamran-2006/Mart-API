@@ -76,3 +76,4 @@ async def kafka_consumer(
     finally:
         # Ensure to close the consumer when done.
         await consumer.stop()
+ 

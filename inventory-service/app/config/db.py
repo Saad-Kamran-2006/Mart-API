@@ -13,7 +13,7 @@ engine = create_engine(
     pool_recycle=300,
     pool_size=10,
     # echo=True,
-)
+) 
 
 
 # ? Create function for table creation
