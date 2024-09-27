@@ -5,6 +5,7 @@ from app.models.product_model import Product
 from typing import Annotated
 from app.config.db import engine
 from sqlmodel import Session
+import asyncio
 
 # bootstrap_servers = ["broker1:19092", "broker2:19092", "broker3:19092"]
 bootstrap_server = "broker:19092"
@@ -34,20 +35,22 @@ async def kafka_consumer(
     # Start the consumer.
     await consumer.start()
 
+    # await consumer.subscribe(topics=[topic])
+
     try:
         # Continuously listen for messages.
         async for message in consumer:
-            print(f"\n Consumer Serialized Data: {message.value}")
+            print(f"\nConsumer Serialized Data:\n{message.value}")
 
             product = product_pb2.Products()
             product.ParseFromString(message.value)
-            print(f"\n Consumer Deserialized Data: {product}")
+            print(f"\nConsumer Deserialized Data:\n{product}")
 
             # ? Session & Database:
             with Session(engine) as session:
-                if product.title and product.quantity and product.price:
+                if product.title and product.price:
                     new_product: Product = Product(
-                        title=product.title, quantity=product.quantity, price=product.price
+                        product_id=product.product_id, title=product.title, price=product.price
                     )
                     session.add(new_product)
                     session.commit()

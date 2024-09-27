@@ -1,9 +1,7 @@
 syntax = "proto3";
 
 message Products {
-    int32 id = 1;
+    string product_id = 1;
     string title = 2;
-    int32 quantity = 3;
-    int32 price = 4 ;
-    bool is_available = 6;
+    float price = 3;
 }

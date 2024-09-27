@@ -7,10 +7,11 @@ from app.models.user_model import User
 from app.models.roles import UserRole
 from app.utils.verify_token import current_user
 from fastapi.security import OAuth2PasswordBearer
-from app.config.setting import KAFKA_CREATE_PRODUCT_TOPIC
+from app.config.setting import KAFKA_CREATE_PRODUCT_TOPIC, KAFKA_CREATE_INVENTORY_TOPIC,KAFKA_DELETE_INVENTORY_TOPIC
 from app.kafka.producer_consumer import kafka_producer
-from app.protobuf import product_pb2
+from app.protobuf import product_pb2, inventory_pb2
 from aiokafka import AIOKafkaProducer
+from app.utils.generate_product_id import generate_product_id
 import requests
 import json
 
@@ -31,26 +32,43 @@ async def create_product(
     if current_user["role"] != UserRole.super_user.value:
         raise HTTPException(status_code=401, detail="Unauthorized")
     if current_user["role"] == UserRole.super_user.value:
+
+        generated_id = generate_product_id()
         
-        newProduct: Product = Product(title=new_product.title, quantity=new_product.quantity, price=new_product.price)
+        newProduct: Product = Product(product_id=generated_id, title=new_product.title, price=new_product.price)
 
-        product: Create_Product = product_pb2.Products(
-            title=new_product.title, quantity=new_product.quantity, price=new_product.price
+        # ? Product Protobuf Data:
+        product = product_pb2.Products(
+           product_id=generated_id, title=new_product.title, price=new_product.price
         )
-        print("\nProduct's Data: ", product)
+        print("\nProduct Data:\n", product)
 
+        # ? Product Serialized Data:
         product_data = product.SerializeToString()
-        print("Product's Serialized Data: ", product_data)
+        print("Product Serialized Data:\n", product_data)
 
-        # ? Produce the message with headers
+        # ? Send To Produce Kafka Topic:
         await producer.send_and_wait(KAFKA_CREATE_PRODUCT_TOPIC, product_data)
-        # print(product_data)
-        # product: Product = Product(title=product_data.title, quantity=product_data.quantity, price=product_data.price)
-        # session.add(product)
-        # session.commit()
-        # session.refresh(product)
 
+# ? <-------------------------------------- Product Topic Ended -------------------------------------->
+
+        # ? Inventory Protobuf Data:
+        inventory = inventory_pb2.Inventories(
+           product_id=generated_id, quantity=new_product.quantity, is_available=new_product.quantity >= 1 if True else False
+        )
+        print("\nInventory Data:\n", inventory)
+
+        # ? Inventory Serialized Data:
+        inventory_data = inventory.SerializeToString()
+        print("Inventory Serialized Data:\n", inventory_data)
+
+        # ? Send To Inventory Kafka Topic:
+        await producer.send_and_wait(KAFKA_CREATE_INVENTORY_TOPIC, inventory_data)
+
+# ? <-------------------------------------- Inventory Topic Ended -------------------------------------->
+        # ? Return the created product:
         return newProduct
+
 
 @product_router.get("/products", response_model=list[Get_Product])
 async def get_all_products(session: Annotated[Session, Depends(get_session)]):
@@ -61,17 +79,17 @@ async def get_all_products(session: Annotated[Session, Depends(get_session)]):
         raise HTTPException(status_code=404, detail="No product found")
 
 
-@product_router.get("/{id}", response_model=Get_Product)
-async def get_single_product(id: int, session: Annotated[Session, Depends(get_session)]):
-    product: Get_Product = session.exec(select(Product).where(Product.id == id)).first()
+@product_router.get("/{product_id}", response_model=Get_Product)
+async def get_single_product(product_id: str, session: Annotated[Session, Depends(get_session)]):
+    product: Get_Product = session.exec(select(Product).where(Product.product_id == product_id)).first()
     if product:
         return product
     else:
         raise HTTPException(status_code=404, detail="No product found")
 
-@product_router.put("/{id}", response_model=Get_Product)
+@product_router.put("/{product_id}", response_model=Get_Product)
 async def edit_product(
-    id: int,
+    product_id: str,
     new_product: Annotated[Create_Product, Depends()],
     current_user: Annotated[User, Depends(current_user)],
     session: Annotated[Session, Depends(get_session)],
@@ -81,16 +99,12 @@ async def edit_product(
     if current_user["role"] != UserRole.super_user.value:
         raise HTTPException(status_code=401, detail="Unauthorized")
     if current_user["role"] == UserRole.super_user.value:
-        existing_product = session.exec(select(Product).where(Product.id == id)).first()
+        existing_product = session.exec(select(Product).where(Product.product_id == product_id)).first()
 
         if existing_product:
             existing_product.title = new_product.title
-            existing_product.quantity = new_product.quantity
             existing_product.price = new_product.price
-            if new_product.quantity >= 1:
-                existing_product.is_available = True
-            elif new_product.quantity < 1:
-                existing_product.is_available = False
+            
             session.add(existing_product)
             session.commit()
             session.refresh(existing_product)
@@ -99,18 +113,34 @@ async def edit_product(
             raise HTTPException(status_code=404, detail="No product found")
 
 
-@product_router.delete("/{id}")
+@product_router.delete("/{product_id}")
 async def delete_product(
-    id: int,
+    product_id: str,
     current_user: Annotated[User, Depends(current_user)],
     session: Annotated[Session, Depends(get_session)],
+    producer: Annotated[AIOKafkaProducer, Depends(kafka_producer)],
 ):
     if not current_user:
         raise HTTPException(status_code=401, detail="Invalid token, please login again")
     if current_user["role"] != UserRole.super_user.value:
         raise HTTPException(status_code=401, detail="Unauthorized")
     if current_user["role"] == UserRole.super_user.value:
-        product = session.exec(select(Product).where(Product.id == id)).first()
+        product = session.exec(select(Product).where(Product.product_id == product_id)).first()
+
+        if product.product_id:
+            # ? Inventory Protobuf Data:
+            inventory = product_pb2.Products(product_id=product.product_id)
+            print("\nInventory Data:\n", inventory)
+
+            # ? Inventory Serialized Data:
+            inventory_data = inventory.SerializeToString()
+            print("Inventory Serialized Data:\n", inventory_data)
+
+            # ? Send To Inventory Kafka Topic:
+            await producer.send_and_wait(KAFKA_DELETE_INVENTORY_TOPIC, inventory_data)
+
+# ? <-------------------------------------- Inventory Topic Ended -------------------------------------->
+
         if product:
             session.delete(product)
             session.commit()
