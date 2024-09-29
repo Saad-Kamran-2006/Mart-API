@@ -3,12 +3,28 @@ from sqlmodel import Session
 from contextlib import asynccontextmanager
 from app.config.db import create_tables, get_session
 from app.router.inventory import inventory_router
+
 # from app.router.auth import auth_router
-from app.config.setting import BOOTSTRAP_SERVER, KAFKA_DELETE_INVENTORY_TOPIC, KAFKA_CONSUMER_GROUP_FOR_DELETE_INVENTORY, KAFKA_CREATE_INVENTORY_TOPIC, KAFKA_CONSUMER_GROUP_FOR_CREATE_INVENTORY
+from app.config.setting import (
+    BOOTSTRAP_SERVER,
+    KAFKA_DELETE_INVENTORY_TOPIC,
+    KAFKA_CONSUMER_GROUP_FOR_DELETE_INVENTORY,
+    KAFKA_CREATE_INVENTORY_TOPIC,
+    KAFKA_CONSUMER_GROUP_FOR_CREATE_INVENTORY,
+    KAFKA_GET_PRODUCT_INVENTORY_TOPIC,
+    KAFKA_CONSUMER_GROUP_FOR_GET_PRODUCT_INVENTORY,
+    KAFKA_UPDATE_ORDER_INVENTORY_TOPIC,
+    KAFKA_CONSUMER_GROUP_FOR_UPDATE_ORDER_INVENTORY,
+    KAFKA_DELETE_ORDER_INVENTORY_TOPIC,
+    KAFKA_CONSUMER_GROUP_FOR_DELETE_ORDER_INVENTORY,
+)
+
+
 from app.kafka.producer_consumer import kafka_consumer
+from app.utils.order_consumer import order_consumer
+from app.utils.update_order_consumer import update_order_consumer
+from app.utils.delete_order_consumer import delete_order_consumer
 import asyncio
-
-
 
 
 @asynccontextmanager
@@ -31,8 +47,35 @@ async def lifespan(app: FastAPI):
             KAFKA_CONSUMER_GROUP_FOR_DELETE_INVENTORY,
         )
     )
-    yield
 
+    # ? Get Product Inventory Consumer:
+    product_inventory = asyncio.create_task(
+        order_consumer(
+            KAFKA_GET_PRODUCT_INVENTORY_TOPIC,
+            BOOTSTRAP_SERVER,
+            KAFKA_CONSUMER_GROUP_FOR_GET_PRODUCT_INVENTORY,
+        )
+    )
+
+    # ? Update Order Inventory Consumer:
+    update_order_inventory = asyncio.create_task(
+        update_order_consumer(
+            KAFKA_UPDATE_ORDER_INVENTORY_TOPIC,
+            BOOTSTRAP_SERVER,
+            KAFKA_CONSUMER_GROUP_FOR_UPDATE_ORDER_INVENTORY,
+        )
+    )
+
+    # ? Delete Order Inventory Consumer:
+    delete_order_inventory = asyncio.create_task(
+        delete_order_consumer(
+            KAFKA_DELETE_ORDER_INVENTORY_TOPIC,
+            BOOTSTRAP_SERVER,
+            KAFKA_CONSUMER_GROUP_FOR_DELETE_ORDER_INVENTORY,
+        )
+    )
+
+    yield
 
 
 app: FastAPI = FastAPI(
@@ -50,6 +93,7 @@ app: FastAPI = FastAPI(
 )
 
 app.include_router(router=inventory_router)
+
 
 @app.get("/")
 async def inventory_service():

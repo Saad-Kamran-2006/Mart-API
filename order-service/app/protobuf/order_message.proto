@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message Order_Message {
+    string status = 1;
+    string message = 2;
+} 

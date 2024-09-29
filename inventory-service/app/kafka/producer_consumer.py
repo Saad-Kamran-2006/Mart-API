@@ -10,6 +10,7 @@ import asyncio
 # bootstrap_servers = ["broker1:19092", "broker2:19092", "broker3:19092"]
 bootstrap_server = "broker:19092"
 
+
 # ? Kafka Producer as a dependency:
 async def kafka_producer():
     producer = AIOKafkaProducer(bootstrap_servers=bootstrap_server)
@@ -21,9 +22,7 @@ async def kafka_producer():
 
 
 # ? Kafka consumer:
-async def kafka_consumer(
-    topic, bootstrap_server, group_id
-):
+async def kafka_consumer(topic, bootstrap_server, group_id):
     # Create a consumer instance.
     consumer = AIOKafkaConsumer(
         topic,
@@ -44,27 +43,45 @@ async def kafka_consumer(
             inventory.ParseFromString(message.value)
             print(f"\nConsumer Deserialized Data:\n{inventory}")
 
+# ? <---------------------------------------- Inventory Consumer ---------------------------------------->
+
+
+
+# ? <------------------------------------- Order Inventory Consumer ------------------------------------->
+
             # ? Session & Database:
             with Session(engine) as session:
-                if inventory.product_id and inventory.quantity and inventory.is_available:
+                if (
+                    inventory.product_id
+                    and inventory.quantity
+                    and inventory.is_available
+                ):
                     new_inventory: Inventory = Inventory(
-                        product_id=inventory.product_id, quantity=inventory.quantity, is_available=inventory.is_available
+                        product_id=inventory.product_id,
+                        quantity=inventory.quantity,
+                        is_available=inventory.is_available,
                     )
-                    print("\nnew_inventory:\n",new_inventory)
+                    print("\nnew_inventory:\n", new_inventory)
                     session.add(new_inventory)
                     session.commit()
                     session.refresh(new_inventory)
 
                 elif inventory.product_id:
-                    print("\ninventory.product_id:\n",inventory.product_id)
-                    existing_inventory = session.exec(select(Inventory).where(Inventory.product_id == inventory.product_id)).first()
-                    print("\nexisting_inventory:\n",existing_inventory)
+                    print("\ninventory.product_id:\n", inventory.product_id)
+                    existing_inventory = session.exec(
+                        select(Inventory).where(
+                            Inventory.product_id == inventory.product_id
+                        )
+                    ).first()
+                    print("\nexisting_inventory:\n", existing_inventory)
 
                     if not existing_inventory:
                         new_inventory: Inventory = Inventory(
-                        product_id=inventory.product_id, quantity=0, is_available=False
-                    )
-                        print("\nLast new_inventory:\n",new_inventory)
+                            product_id=inventory.product_id,
+                            quantity=0,
+                            is_available=False,
+                        )
+                        print("\nLast new_inventory:\n", new_inventory)
                         session.add(new_inventory)
                         session.commit()
                         session.refresh(new_inventory)
@@ -72,8 +89,7 @@ async def kafka_consumer(
                     elif existing_inventory:
                         session.delete(existing_inventory)
                         session.commit()
-                    
+
     finally:
         # Ensure to close the consumer when done.
         await consumer.stop()
- 
