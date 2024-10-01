@@ -17,6 +17,7 @@ from app.config.setting import (
 from app.kafka.producer_consumer import kafka_producer, kafka_consumer
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
 from app.protobuf import order_pb2, order_message_pb2, update_order_pb2
+from app.utils.produce_notification import produce_notification
 from typing import Annotated
 
 
@@ -75,6 +76,8 @@ async def create_order(
             session.add(order)
             session.commit()
             session.refresh(order)
+
+        await produce_notification(message=order_message.message, producer=producer)
 
         return {"message": order_message.message}
 
@@ -149,6 +152,10 @@ async def edit_order(
             session.commit()
             session.refresh(existing_order)
 
+            await produce_notification(
+                message=updated_order_message.message, producer=producer
+            )
+
             return {"message": updated_order_message.message}
 
         elif updated_order_message.status == "error":
@@ -199,6 +206,10 @@ async def cancel_order(
             if deleted_order_message.status == "success":
                 session.delete(existing_order)
                 session.commit()
+
+                await produce_notification(
+                    message=deleted_order_message.message, producer=producer
+                )
 
                 return {"message": deleted_order_message.message}
 
