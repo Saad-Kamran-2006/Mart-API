@@ -41,9 +41,13 @@ app: FastAPI = FastAPI(
     root_path_in_servers=True,
     servers=[
         {
-            "url": "http://127.0.0.1:8001",
+            "url": "http://127.0.0.1:8101",
             "description": "Product Service's Development Server",
-        }
+        },
+        {
+            "url": "http://host.docker.internal:8101",
+            "description": "Product Service's Development Server",
+        },
     ],
 )
 

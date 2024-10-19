@@ -1,25 +1,25 @@
 version: "3.9"
 name: Mart-API
 services:
-  # #? Service 1: (User Service):
-  # user:
-  #   image: user-api
-  #   build:
-  #     context: ./user-service
-  #   container_name: user-service
-  #   hostname: user-service
-  #   volumes:
-  #     - ./user-service:/code
-  #   ports:
-  #     - "8000:8000"
-  #   networks:
-  #     - mart-net
-  #   depends_on:
-  #     # - user_postgres_db
-  #     # - broker1
-  #     # - broker2
-  #     # - broker3
-  #     - broker
+  #? Service 1: (User Service):
+  user:
+    image: user-api
+    build:
+      context: ./user-service
+    container_name: user-service
+    hostname: user-service
+    volumes:
+      - ./user-service:/code
+    ports:
+      - "8100:8100"
+    networks:
+      - mart-net
+    depends_on:
+      # - user_postgres_db
+      # - broker1
+      # - broker2
+      # - broker3
+      - broker
 
   # #? (User Service Database):
   # user_postgres_db:
@@ -39,24 +39,24 @@ services:
 
 # ? <------------------------------------------- User Service ------------------------------------------->
 
-  # #? Service 2: (Product Service):
-  # product:
-  #   image: product-api
-  #   build:
-  #     context: ./product-service
-  #   container_name: product-service
-  #   volumes:
-  #     - ./product-service:/code
-  #   ports:
-  #     - "8001:8000"
-  #   networks:
-  #     - mart-net
-  #   depends_on:
-  #     # - product_postgres_db
-  #     # - broker1
-  #     # - broker2
-  #     # - broker3
-  #     - broker
+  #? Service 2: (Product Service):
+  product:
+    image: product-api
+    build:
+      context: ./product-service
+    container_name: product-service
+    volumes:
+      - ./product-service:/code
+    ports:
+      - "8101:8101"
+    networks:
+      - mart-net
+    depends_on:
+      # - product_postgres_db
+      # - broker1
+      # - broker2
+      # - broker3
+      - broker
 
   # #? (Product Service Database):
   # product_postgres_db:
@@ -85,7 +85,7 @@ services:
     volumes:
       - ./inventory-service:/code
     ports:
-      - "8002:8000"
+      - "8102:8102"
     networks:
       - mart-net
     depends_on:
@@ -122,7 +122,7 @@ services:
     volumes:
       - ./order-service:/code
     ports:
-      - "8003:8000"
+      - "8103:8103"
     networks:
       - mart-net
     depends_on:
@@ -159,7 +159,7 @@ services:
     volumes:
       - ./notification-service:/code
     ports:
-      - "8004:8000"
+      - "8104:8104"
     networks:
       - mart-net
     depends_on:
@@ -186,6 +186,27 @@ services:
   #     - mart-net
     
 # ? <----------------------------------------- Notification Service ----------------------------------------->
+
+#? Service 6: (Root Service):
+  root:
+    image: root
+    build:
+      context: ./root
+    container_name: root
+    volumes:
+      - ./root:/code
+    ports:
+      - "8110:8110"
+    networks:
+      - mart-net
+    depends_on:
+      # - broker1
+      # - broker2
+      # - broker3
+      - broker
+
+# ? <----------------------------------------- Root Service ----------------------------------------->
+
 
   #? Initialize demo kafka brokers:
   #? Initialize kafka broker

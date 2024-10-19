@@ -28,8 +28,8 @@ RUN poetry install
 # Install mypy python Intelisense
 RUN pip install mypy
 
-# Make port 8000 available to the world outside this container
-EXPOSE 8000
+# Make port 8100 available to the world outside this container
+EXPOSE 8100
 
 # Run the app. CMD can be overridden when starting the container
-CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--reload"]
+CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8100", "--reload"]

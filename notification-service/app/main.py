@@ -37,9 +37,13 @@ app: FastAPI = FastAPI(
     root_path_in_servers=True,
     servers=[
         {
-            "url": "http://127.0.0.1:8004",
+            "url": "http://127.0.0.1:8104",
             "description": "Notification Service's Development Server",
-        }
+        },
+        {
+            "url": "http://host.docker.internal:8104",
+            "description": "Notification Service's Development Server",
+        },
     ],
 )
 
